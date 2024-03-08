@@ -1,0 +1,39 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+model User {
+  id    String  @id @default(auto()) @map("_id") @db.ObjectId
+  email String? @unique
+
+  quizes Quiz[] @relation("UserQuiz")
+  
+  announcements Announcement[] @relation("UserAnnouncement")
+}
+model Announcement {
+  id    String  @id @default(auto()) @map("_id") @db.ObjectId
+  userId String @db.ObjectId
+  user User @relation("UserAnnouncement",fields:[userId],references:[id],onDelete:Cascade)
+  title String
+  quizId String @db.ObjectId
+  quize Quiz @relation("quizeAnnouncement",fields:[quizId],references:[id],onDelete:Cascade)
+
+}
+model Quiz {
+  id    String  @id @default(auto()) @map("_id") @db.ObjectId
+  userId String @db.ObjectId
+  user User @relation("UserQuiz",fields:[userId],references:[id],onDelete:Cascade)
+  question String
+  answer String
+  announcement Announcement[] @relation("quizeAnnouncement")
+}
